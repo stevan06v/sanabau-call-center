@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "sanabau-call-center"
+version = "0.1.0"
+description = ""
+authors = ["Stevan Vlajic <91951603+stevan06v@users.noreply.github.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+gspread = "^6.2.1"
+google-api-python-client = "^2.176.0"
+google-auth-httplib2 = "^0.2.0"
+google-auth-oauthlib = "^1.2.2"
+pydantic = "^2.11.7"
+vapi-server-sdk = "^1.7.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
