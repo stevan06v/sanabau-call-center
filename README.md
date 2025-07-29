@@ -12,3 +12,4 @@ A vapi script processing lists of bavarian construction companies and calling th
 
 ## Sources
 * VAPI-API https://docs.vapi.ai/quickstart/phone
+* BATCH CALLING: https://youtu.be/aAOv4OxLgmk?si=URc_oDfxL2a6mWDW

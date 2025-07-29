@@ -13,6 +13,9 @@ google-auth-httplib2 = "^0.2.0"
 google-auth-oauthlib = "^1.2.2"
 pydantic = "^2.11.7"
 vapi-server-sdk = "^1.7.0"
+fastapi = "^0.116.1"
+uvicorn = "^0.35.0"
+dotenv = "^0.9.9"
 
 
 [build-system]
