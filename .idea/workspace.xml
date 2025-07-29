@@ -5,14 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="e8e41c6a-9a1f-431b-bbde-b9ecd29b74b4" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/keys.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/libs/services.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/libs/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/libs/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/libs/sheets.py" beforeDir="false" afterPath="$PROJECT_DIR$/libs/sheets.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/libs/services.py" beforeDir="false" afterPath="$PROJECT_DIR$/libs/services.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/poetry.lock" beforeDir="false" afterPath="$PROJECT_DIR$/poetry.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pyproject.toml" beforeDir="false" afterPath="$PROJECT_DIR$/pyproject.toml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -145,7 +140,7 @@
       <workItem from="1753002210377" duration="3344000" />
       <workItem from="1753288151438" duration="599000" />
       <workItem from="1753394939208" duration="601000" />
-      <workItem from="1753718714773" duration="18349000" />
+      <workItem from="1753718714773" duration="19479000" />
     </task>
     <servers />
   </component>
@@ -153,7 +148,7 @@
     <option name="version" value="3" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/sanabau_call_center$services.coverage" NAME="services Coverage Results" MODIFIED="1753750714371" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/libs" />
+    <SUITE FILE_PATH="coverage/sanabau_call_center$services.coverage" NAME="services Coverage Results" MODIFIED="1753752775205" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/libs" />
     <SUITE FILE_PATH="coverage/sanabau_call_center$main.coverage" NAME="main Coverage Results" MODIFIED="1752781493065" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>

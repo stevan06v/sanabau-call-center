@@ -19,6 +19,7 @@ async def log_call(request: Request):
     data = await request.json()
     print(data)
 
+
 @app.post("/call-status-update")
 async def log_call(request: Request):
     data = await request.json()
@@ -35,15 +36,22 @@ async def log_call(request: Request):
 
         if not get_current_batch_list(): # if empty = true
             send_webhook_notify()
+        else:
+            print(f'''
+            \n
+            \n
+            \n\n\n\n\n\n\n\n\n\n\n\n
+            ENTRIES REMAINING: {get_current_batch_list()}
+            ''')
 
     return {"success": True}
 
 
 @app.get("/")
 def read_root():
-    send_webhook_notify()
-    #start_campaign()
-    return {"Hello": "World"}
+    #send_webhook_notify()
+    start_campaign()
+    return {"success": True}
 
 
 @app.get("/get-uncalled")

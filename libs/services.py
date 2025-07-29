@@ -30,7 +30,7 @@ def get_current_batch_list():
 
 
 def send_webhook_notify():
-    requests.post(SHEETS_WEBHOOK_URL, json={"gid": SHEETS_GID, "finished": True})
+    requests.post(SHEETS_WEBHOOK_URL, json={"finished": True})
 
 
 def make_outbound_chunk(batch):
