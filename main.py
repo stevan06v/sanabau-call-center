@@ -32,15 +32,13 @@ async def log_call(request: Request):
         call = msg.get("call", {})
 
         current_call_id = call.get("id")
-        remove_call_id(current_call_id)
+        remove_call_id(current_call_id) # 9 -> 8 -> 7
 
         if not get_current_batch_list(): # if empty = true
-            send_webhook_notify()
+            start_campaign()
         else:
             print(f'''
-            \n
-            \n
-            \n\n\n\n\n\n\n\n\n\n\n\n
+            \n\n\n\n\n\n\n\n\n\n\n\n\n
             ENTRIES REMAINING: {get_current_batch_list()}
             ''')
 

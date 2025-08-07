@@ -6,8 +6,7 @@ from keys import VAPI_API_TOKEN, PHONE_NUMBER_ID, ASSISTANT_ID, SHEETS_WEBHOOK_U
 import requests
 
 
-BATCH_COUNT = 5
-
+BATCH_COUNT = 1
 CURRENT_BATCH_LIST = []
 
 try:
@@ -65,7 +64,7 @@ def start_campaign():
     make_outbound_chunk(batch)
 
 
-def update_called_status_by_phone(phone_number: str, ):
+def update_called_status_by_phone(phone_number: str):
     header = sheet.row_values(1)
     called_col_index = header.index("called") + 1
     records = get_records_from_worksheet("Tabellenblatt1")
