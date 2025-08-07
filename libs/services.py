@@ -8,6 +8,8 @@ import requests
 
 BATCH_COUNT = 1
 CURRENT_BATCH_LIST = []
+CURRENT_UNCALLED_COUNT = 0
+
 
 try:
     client = Vapi(token=VAPI_API_TOKEN)
@@ -55,12 +57,19 @@ def get_uncalled_records():
 
 
 def start_campaign():
+    global CURRENT_UNCALLED_COUNT
     records = get_uncalled_records()
     phone_numbers = [
         str(f"+{num.get('phone')}") for num in records
     ]
     print(phone_numbers)
-    batch = phone_numbers[:BATCH_COUNT]
+
+    CURRENT_UNCALLED_COUNT = len(records)
+    if CURRENT_UNCALLED_COUNT < BATCH_COUNT: # if amount of remaining uncalled < batch_size -> take what is left
+        batch = records
+    else:
+        batch = phone_numbers[:BATCH_COUNT]
+
     make_outbound_chunk(batch)
 
 
