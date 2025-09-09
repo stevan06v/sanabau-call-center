@@ -45,6 +45,8 @@ async def log_call(request: Request):
         accordingly. make sure to not have then more not_called entries then phonenumbers.
         transcript = should be the link to the audio. the rest of the data could be used from the json
         + import the a new elevenlabs key in VAPI settings for developing purposes. 
+        + implement a quick ui with a button which triggers the start_campaign() function.
+        + send mail if user is interested
         '''
         # update_called_status_by_phone(customer.get("number"))
 
