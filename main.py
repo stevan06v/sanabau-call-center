@@ -2,7 +2,7 @@ from fastapi import FastAPI, Request
 from vapi import Vapi
 from libs.services import start_campaign, get_uncalled_records
 from keys import VAPI_API_TOKEN, PHONE_NUMBER_ID, ASSISTANT_ID
-from libs.services import remove_call_id,get_current_batch_list, send_webhook_notify
+from libs.services import remove_call_id,get_current_batch_list, send_webhook_notify, update_called_status_by_phone
 
 app = FastAPI()
 
@@ -20,7 +20,7 @@ async def log_call(request: Request):
     print(data)
 
 
-@app.post("/call-status-update")
+@app.post("/gather-caller-data")
 async def log_call(request: Request):
     data = await request.json()
     signature = request.headers.get("X-Vapi-Signature")
@@ -28,11 +28,17 @@ async def log_call(request: Request):
         return {"error": "unauthorized"}, 401
     msg = data.get("message", {})
     if msg.get("type") == "end-of-call-report":
+        print("END OF CALL REPORT:")
         print(msg)
         call = msg.get("call", {})
 
         current_call_id = call.get("id")
         remove_call_id(current_call_id) # 9 -> 8 -> 7
+        # add update phone number here
+        customer = call.get("customer", {})
+        update_called_status_by_phone("6604669179")
+
+        #update_called_status_by_phone(customer.get("number"))
 
         if not get_current_batch_list(): # if empty = true
             start_campaign()
@@ -49,6 +55,7 @@ async def log_call(request: Request):
 def read_root():
     #send_webhook_notify()
     start_campaign()
+
     return {"success": True}
 
 
