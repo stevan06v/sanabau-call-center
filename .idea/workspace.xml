@@ -6,7 +6,6 @@
   <component name="ChangeListManager">
     <list default="true" id="e8e41c6a-9a1f-431b-bbde-b9ecd29b74b4" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/libs/services.py" beforeDir="false" afterPath="$PROJECT_DIR$/libs/services.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -145,7 +144,7 @@
       <workItem from="1756307322513" duration="1617000" />
       <workItem from="1757344431295" duration="269000" />
       <workItem from="1757344740291" duration="8000" />
-      <workItem from="1757350053030" duration="13572000" />
+      <workItem from="1757350053030" duration="14674000" />
     </task>
     <servers />
   </component>
@@ -153,7 +152,7 @@
     <option name="version" value="3" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/sanabau_call_center$services.coverage" NAME="services Coverage Results" MODIFIED="1757377606299" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/libs" />
+    <SUITE FILE_PATH="coverage/sanabau_call_center$services.coverage" NAME="services Coverage Results" MODIFIED="1757379685791" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/libs" />
     <SUITE FILE_PATH="coverage/sanabau_call_center$main.coverage" NAME="main Coverage Results" MODIFIED="1754604736092" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>

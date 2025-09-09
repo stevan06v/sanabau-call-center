@@ -2,14 +2,15 @@ from fastapi import FastAPI, Request
 from vapi import Vapi
 from libs.services import start_campaign, get_uncalled_records
 from keys import VAPI_API_TOKEN, PHONE_NUMBER_ID, ASSISTANT_ID
-from libs.services import remove_call_id,get_current_batch_list, send_webhook_notify, update_called_status_by_phone
+from libs.services import remove_call_id, get_current_batch_list, send_webhook_notify, update_called_status_by_phone
 
 app = FastAPI()
 
 client = Vapi(token=VAPI_API_TOKEN)
 
-#@app.get("/start-campaign")
-#def main():
+
+# @app.get("/start-campaign")
+# def main():
 #    make_outbound_call("+436643279885")
 #    return {"success": "True"}
 
@@ -33,14 +34,21 @@ async def log_call(request: Request):
         call = msg.get("call", {})
 
         current_call_id = call.get("id")
-        remove_call_id(current_call_id) # 9 -> 8 -> 7
+        remove_call_id(current_call_id)  # 9 -> 8 -> 7
         # add update phone number here
         customer = call.get("customer", {})
-        update_called_status_by_phone("6604669179")
+        update_called_status_by_phone("6604669179") # replace with called customer phone number
 
-        #update_called_status_by_phone(customer.get("number"))
+        '''
+        TODO: PARSE the incoming data from msg = data.get("message", {}) out of the string
+        and update the sheet(https://docs.google.com/spreadsheets/d/1JXfj7bJ0kUceNgbTMgoSHg34_qb7Z8akd69IaB4lXvQ/edit?gid=0#gid=0) 
+        accordingly. make sure to not have then more not_called entries then phonenumbers.
+        transcript = should be the link to the audio. the rest of the data could be used from the json
+        + import the a new elevenlabs key in VAPI settings for developing purposes. 
+        '''
+        # update_called_status_by_phone(customer.get("number"))
 
-        if not get_current_batch_list(): # if empty = true
+        if not get_current_batch_list():  # if empty = true
             start_campaign()
         else:
             print(f'''
@@ -53,7 +61,7 @@ async def log_call(request: Request):
 
 @app.get("/")
 def read_root():
-    #send_webhook_notify()
+    # send_webhook_notify()
     start_campaign()
 
     return {"success": True}
