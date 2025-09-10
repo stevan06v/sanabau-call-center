@@ -6,13 +6,14 @@ from pathlib import Path
 from typing import Optional, List, Union
 from dotenv import load_dotenv
 
+
 class MailSender:
     """suppa mail sender"""
     
     def __init__(self):
         load_dotenv()
-        self.smtp_server = os.getenv('SMTP_SERVER', 'gfra1000.siteground.eu')
-        self.smtp_port = int(os.getenv('SMTP_PORT', '465'))
+        self.smtp_server = os.getenv('SMTP_SERVER')
+        self.smtp_port = int(os.getenv('SMTP_PORT'))
         self.email = os.getenv('EMAIL')
         self.password = os.getenv('EMAIL_PASSWORD')
         

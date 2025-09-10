@@ -2,8 +2,8 @@ from fastapi import FastAPI, Request
 from vapi import Vapi
 from libs.services import start_campaign, get_uncalled_records
 from keys import VAPI_API_TOKEN, PHONE_NUMBER_ID, ASSISTANT_ID
-from libs.services import remove_call_id, get_current_batch_list, send_webhook_notify, update_called_status_by_phone
-
+from libs.services import remove_call_id, get_current_batch_list, send_webhook_notify, update_record
+from libs.models import VapiCallReport
 app = FastAPI()
 
 client = Vapi(token=VAPI_API_TOKEN)
@@ -29,15 +29,13 @@ async def log_call(request: Request):
         return {"error": "unauthorized"}, 401
     msg = data.get("message", {})
     if msg.get("type") == "end-of-call-report":
-        print("END OF CALL REPORT:")
-        print(msg)
-        call = msg.get("call", {})
+        #print("END OF CALL REPORT:")
+        #print(msg)
 
-        current_call_id = call.get("id")
-        remove_call_id(current_call_id)  # 9 -> 8 -> 7
-        # add update phone number here
-        customer = call.get("customer", {})
-        update_called_status_by_phone("6604669179") # replace with called customer phone number
+        # parsing
+        report = VapiCallReport(**msg)
+        update_record(report)
+        remove_call_id(report.call.id)
 
         '''
         TODO: PARSE the incoming data from msg = data.get("message", {}) out of the string
@@ -48,7 +46,6 @@ async def log_call(request: Request):
         + implement a quick ui with a button which triggers the start_campaign() function.
         + send mail if user is interested
         '''
-        # update_called_status_by_phone(customer.get("number"))
 
         if not get_current_batch_list():  # if empty = true
             start_campaign()
