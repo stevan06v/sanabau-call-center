@@ -1,14 +1,17 @@
 import time
 
+from libs.helpers import send_html_email, save_temp_html, render_notification_company, render_confirmation_client, \
+    classify_call
 from libs.models import VapiCallReport
 from libs.sheets import get_records_from_worksheet
 from vapi import Vapi
 from libs.sheets import sheet
-from keys import VAPI_API_TOKEN, PHONE_NUMBER_ID, ASSISTANT_ID, SHEETS_WEBHOOK_URL, SHEETS_GID
+from keys import VAPI_API_TOKEN, PHONE_NUMBER_ID, ASSISTANT_ID, SHEETS_WEBHOOK_URL, SHEETS_GID, SMTP_SERVER, SMTP_PORT, \
+    SMTP_EMAIL, SMTP_PASSWORD
 import requests
 
 
-BATCH_COUNT = 2  # max allowed size: 10 -> because of VAPI-policy
+BATCH_COUNT = 2  # max allowed size: 10 -> VAPI-policy
 CURRENT_BATCH_LIST = []
 CURRENT_UNCALLED_COUNT = 0
 
@@ -88,45 +91,10 @@ def start_campaign():
     make_outbound_chunk(batch)
 
 
-def classify_call(ended_reason: str) -> str:
-    success_reasons = {
-        "assistant-ended-call",
-        "assistant-ended-call-after-message-spoken",
-        "assistant-ended-call-with-hangup-task",
-        "assistant-forwarded-call",
-        "assistant-said-end-call-phrase",
-        "customer-ended-call",
-        "vonage-completed",
-        "voicemail",
-    }
-
-    retry_reasons = {
-        "customer-busy",
-        "customer-did-not-answer",
-        "customer-did-not-give-microphone-permission",
-        "call.in-progress.error-assistant-did-not-receive-customer-audio",
-        "phone-call-provider-closed-websocket",
-        "phone-call-provider-bypass-enabled-but-no-call-received",
-        "twilio-failed-to-connect-call",
-        "twilio-reported-customer-misdialed",
-        "vonage-disconnected",
-        "vonage-failed-to-connect-call",
-        "vonage-rejected",
-        "call.in-progress.error-sip-telephony-provider-failed-to-connect-call",
-        "call.forwarding.operator-busy",
-        "silence-timed-out",
-    }
-
-    if ended_reason in success_reasons:
-        return "success"
-    elif ended_reason in retry_reasons:
-        return "retry"
-    else:
-        return "error"
-
-
 def update_record(vapi_call_report: VapiCallReport):
     header = sheet.row_values(1)
+
+    email_sent = False
 
     record_col_index = {
         "call_id": header.index("call_id") + 1,
@@ -144,17 +112,55 @@ def update_record(vapi_call_report: VapiCallReport):
         "classification": header.index("classification") + 1,
     }
 
+    customer_number = None
+    if getattr(vapi_call_report, "customer", None) and getattr(vapi_call_report.customer, "number", None):
+        customer_number = str(vapi_call_report.customer.number).replace("+", "")
+    elif getattr(vapi_call_report.analysis.structuredData, "phone", None):
+        customer_number = str(vapi_call_report.analysis.structuredData.phone).replace("+", "")
+
+    if not customer_number:
+        print("⚠️ Keine Telefonnummer im Report gefunden – kein Update möglich.")
+        return
+
+    if vapi_call_report.analysis.structuredData.status == "INTERESSIERT" or "SEHR INTERESSIERT":
+        success = send_html_email(
+            smtp_server=SMTP_SERVER,
+            smtp_port=SMTP_PORT,
+            sender_email=SMTP_EMAIL,
+            sender_password=SMTP_PASSWORD,
+            recipient_email=SMTP_EMAIL,  # SMTP_EMAIL
+            subject="Neuer Interessent gemeldet",
+            content=save_temp_html(render_notification_company(vapi_call_report))
+        )
+        email_sent = success
+        print(f"===Email sent to {SMTP_EMAIL}: {success}===")
+
+        try:
+            send_html_email(
+                smtp_server=SMTP_SERVER,
+                smtp_port=SMTP_PORT,
+                sender_email=SMTP_EMAIL,
+                sender_password=SMTP_PASSWORD,
+                recipient_email=str(vapi_call_report.analysis.structuredData.email) or "",
+                subject="Sana Bau GmbH — Bestätigung",
+                content=save_temp_html(render_confirmation_client(vapi_call_report))
+            )
+        except Exception as e:
+            print(f"Error sending confirmation email: {e}")
+
+    classification = classify_call(vapi_call_report.endedReason)
+
     records = get_records_from_worksheet("Tabellenblatt1")
 
     for idx, record in enumerate(records, start=2):
-        if str(record.get("formatted_phone")) == str(vapi_call_report.customer.number).replace('+', ''):
+        if str(record.get("formatted_phone")) == customer_number:
             sheet.update_cell(idx, record_col_index.get("call_id"), vapi_call_report.call.id)
             sheet.update_cell(idx, record_col_index.get("name"), vapi_call_report.analysis.structuredData.name)
             sheet.update_cell(idx, record_col_index.get("call_date"), str(vapi_call_report.startedAt))
             sheet.update_cell(idx, record_col_index.get("status"), str(vapi_call_report.analysis.structuredData.status))
             sheet.update_cell(idx, record_col_index.get("called"), "CALLED")
             sheet.update_cell(idx, record_col_index.get("email"), vapi_call_report.analysis.structuredData.email)
-            sheet.update_cell(idx, record_col_index.get("email_sent"), "")
+            sheet.update_cell(idx, record_col_index.get("email_sent"), "SENT" if email_sent else "NOT SENT")
             sheet.update_cell(idx, record_col_index.get("branche"), vapi_call_report.analysis.structuredData.branche)
             sheet.update_cell(idx, record_col_index.get("summary"), vapi_call_report.summary)
             sheet.update_cell(idx, record_col_index.get("duration"), str(vapi_call_report.durationMinutes))
@@ -164,7 +170,7 @@ def update_record(vapi_call_report: VapiCallReport):
                 record_col_index.get("transcript"),
                 f'=HYPERLINK("{vapi_call_report.stereoRecordingUrl}";"Recording")'
             )
-            sheet.update_cell(idx, record_col_index.get("classification"), "")
+            sheet.update_cell(idx, record_col_index.get("classification"), classification)
             print(f"Telefonnummer {vapi_call_report.customer.number} wurde auf '{"CALLED"}' aktualisiert (Zeile {idx})")
             break
     else:
