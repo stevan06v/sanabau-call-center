@@ -1,0 +1,40 @@
+services:
+  sanabau-call-center:
+    build: .
+    container_name: ${ROUTER_NAME}
+    restart: unless-stopped
+    environment:
+      - VAPI_API_TOKEN=${VAPI_API_TOKEN}
+      - ASSISTANT_ID=${ASSISTANT_ID}
+      - PHONE_NUMBER_ID=${PHONE_NUMBER_ID}
+      - SHEETS_WEBHOOK_URL=${SHEETS_WEBHOOK_URL}
+      - SHEETS_GID=${SHEETS_GID}
+      - EMAIL=${EMAIL}
+      - EMAIL_PASSWORD=${EMAIL_PASSWORD}
+      - SMTP_SERVER=${SMTP_SERVER}
+      - SMTP_PORT=${SMTP_PORT}
+      - ENVIRONMENT=${ENVIRONMENT:-production}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+    networks:
+      - proxy
+      #- traefik
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.${ROUTER_NAME}.rule=Host(`${DOMAIN}`)
+      - traefik.http.routers.${ROUTER_NAME}.entrypoints=http
+      - traefik.http.middlewares.${ROUTER_NAME}-redirect.redirectscheme.scheme=https
+      - traefik.http.routers.${ROUTER_NAME}.middlewares=${ROUTER_NAME}-redirect
+      - traefik.http.routers.${ROUTER_NAME}-secure.rule=Host(`${DOMAIN}`)
+      - traefik.http.routers.${ROUTER_NAME}-secure.entrypoints=https
+      - traefik.http.routers.${ROUTER_NAME}-secure.tls=true
+      - traefik.http.routers.${ROUTER_NAME}-secure.tls.certresolver=letsencrypt
+      - traefik.http.services.${ROUTER_NAME}.loadbalancer.server.port=8000
+
+networks:
+  #  traefik:
+  proxy:  
+    external: true
+      #  name: ${TRAEFIK_NETWORK}

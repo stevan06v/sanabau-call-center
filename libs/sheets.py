@@ -17,7 +17,7 @@ sheet_id = "1JXfj7bJ0kUceNgbTMgoSHg34_qb7Z8akd69IaB4lXvQ"
 
 workbook = client.open_by_key(sheet_id)
 
-sheet = workbook.worksheet("Tabellenblatt1")
+sheet = workbook.worksheet("Kampagne-1")
 
 
 def get_records_from_worksheet(worksheet_name) -> list:

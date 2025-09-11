@@ -62,7 +62,7 @@ def make_outbound_chunk(batch):
 
 def get_uncalled_records():
     uncalled_records = []
-    records = get_records_from_worksheet("Tabellenblatt1")
+    records = get_records_from_worksheet("Kampagne-1")
     for iterator in records:
         if iterator.get("called") == "NOT CALLED":
             uncalled_records.append(iterator)
