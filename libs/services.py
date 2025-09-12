@@ -11,7 +11,7 @@ from keys import VAPI_API_TOKEN, PHONE_NUMBER_ID, ASSISTANT_ID, SHEETS_WEBHOOK_U
 import requests
 
 
-BATCH_COUNT = 2  # max allowed size: 10 -> VAPI-policy
+BATCH_COUNT = 10  # max allowed size: 10 -> VAPI-policy
 CURRENT_BATCH_LIST = []
 CURRENT_UNCALLED_COUNT = 0
 
@@ -32,7 +32,10 @@ def remove_call_id(call_id: str):
     print(CURRENT_BATCH_LIST)
     print("\n==============================================\n")
 
-    CURRENT_BATCH_LIST.remove(call_id)
+    try:
+        CURRENT_BATCH_LIST.remove(call_id)
+    except ValueError:
+        pass
 
 
 def get_current_batch_list():
@@ -62,7 +65,7 @@ def make_outbound_chunk(batch):
 
 def get_uncalled_records():
     uncalled_records = []
-    records = get_records_from_worksheet("Template")
+    records = get_records_from_worksheet("Kampagne-1")
     for iterator in records:
         if iterator.get("called") == "NOT CALLED":
             uncalled_records.append(iterator)
@@ -94,7 +97,9 @@ def start_campaign():
 def update_record(vapi_call_report: VapiCallReport):
     header = sheet.row_values(1)
 
-    email_sent = vapi_call_report.analysis.structuredData.status in ["INTERESSIERT", "SEHR INTERESSIERT"]
+    structured = getattr(vapi_call_report.analysis, "structuredData", None)
+    status = getattr(structured, "status", None)
+    email_sent = status in ["INTERESSIERT", "SEHR INTERESSIERT"]
 
     record_col_index = {
         "call_id": header.index("call_id") + 1,
@@ -115,51 +120,49 @@ def update_record(vapi_call_report: VapiCallReport):
     customer_number = None
     if getattr(vapi_call_report, "customer", None) and getattr(vapi_call_report.customer, "number", None):
         customer_number = str(vapi_call_report.customer.number).replace("+", "")
-    elif getattr(vapi_call_report.analysis.structuredData, "phone", None):
-        customer_number = str(vapi_call_report.analysis.structuredData.phone).replace("+", "")
+    elif structured and getattr(structured, "phone", None):
+        customer_number = str(structured.phone).replace("+", "")
 
     if not customer_number:
         print("⚠️ Keine Telefonnummer im Report gefunden – kein Update möglich.")
         return
 
-    if vapi_call_report.analysis.successEvaluation:
-        classification = classify_call(vapi_call_report.endedReason)
-    else:
-        classification = "retry"
+    classification = "retry" if not getattr(vapi_call_report.analysis, "successEvaluation", False) else classify_call(vapi_call_report.endedReason)
 
-    records = get_records_from_worksheet("Template")
+    records = get_records_from_worksheet("Kampagne-1")
 
     for idx, record in enumerate(records, start=2):
         if str(record.get("formatted_phone")) == customer_number:
-            sheet.update_cell(idx, record_col_index.get("call_id"), vapi_call_report.call.id)
-            sheet.update_cell(idx, record_col_index.get("name"), vapi_call_report.analysis.structuredData.name)
-            sheet.update_cell(idx, record_col_index.get("call_date"), str(vapi_call_report.startedAt))
-            sheet.update_cell(idx, record_col_index.get("status"), str(vapi_call_report.analysis.structuredData.status))
-            sheet.update_cell(idx, record_col_index.get("called"), "CALLED")
-            sheet.update_cell(idx, record_col_index.get("email"), vapi_call_report.analysis.structuredData.email)
-            sheet.update_cell(idx, record_col_index.get("email_sent"), "SENT" if email_sent else "NOT SENT")
-            sheet.update_cell(idx, record_col_index.get("branche"), vapi_call_report.analysis.structuredData.branche)
-            sheet.update_cell(idx, record_col_index.get("summary"), vapi_call_report.summary)
-            sheet.update_cell(idx, record_col_index.get("duration"), str(vapi_call_report.durationMinutes))
-            sheet.update_cell(idx, record_col_index.get("fax"), vapi_call_report.analysis.structuredData.fax)
-            sheet.update_cell(
-                idx,
-                record_col_index.get("transcript"),
-                f'=HYPERLINK("{vapi_call_report.stereoRecordingUrl}";"Recording")'
-            )
-            sheet.update_cell(idx, record_col_index.get("classification"), classification)
+            # Werte vorbereiten, nur wenn structured vorhanden ist
+            values = {
+                record_col_index.get("call_id"): vapi_call_report.call.id,
+                record_col_index.get("name"): getattr(structured, "name", ""),
+                record_col_index.get("call_date"): str(getattr(vapi_call_report, "startedAt", "")),
+                record_col_index.get("status"): getattr(structured, "status", ""),
+                record_col_index.get("called"): "CALLED",
+                record_col_index.get("email"): getattr(structured, "email", ""),
+                record_col_index.get("email_sent"): "SENT" if email_sent else "NOT SENT",
+                record_col_index.get("branche"): getattr(structured, "branche", ""),
+                record_col_index.get("summary"): getattr(vapi_call_report, "summary", ""),
+                record_col_index.get("duration"): str(getattr(vapi_call_report, "durationMinutes", "")),
+                record_col_index.get("fax"): getattr(structured, "fax", ""),
+                record_col_index.get("transcript"): f'=HYPERLINK("{getattr(vapi_call_report, "stereoRecordingUrl", "")}";"Recording")',
+                record_col_index.get("classification"): classification,
+            }
+
+            cell_list = sheet.range(idx, 1, idx, len(header))
+            for cell in cell_list:
+                if cell.col in values:
+                    cell.value = values[cell.col]
+
+            sheet.update_cells(cell_list, value_input_option="USER_ENTERED")
             print(f"Telefonnummer {vapi_call_report.customer.number} wurde auf 'CALLED' aktualisiert (Zeile {idx})")
             break
     else:
         print("no match found!")
 
+    # Email-Job
     def _job():
-        status = getattr(
-            getattr(vapi_call_report.analysis, "structuredData", None),
-            "status",
-            None
-        )
-
         if status in ["INTERESSIERT", "SEHR INTERESSIERT"]:
             success = send_html_email(
                 smtp_server="78.46.226.32",
@@ -173,11 +176,7 @@ def update_record(vapi_call_report: VapiCallReport):
             print(f"===Email sent to info@homa-bau.com: {success}===")
 
             try:
-                recipient = getattr(
-                    getattr(vapi_call_report.analysis, "structuredData", None),
-                    "email",
-                    None
-                )
+                recipient = getattr(structured, "email", None)
                 if recipient:
                     send_html_email(
                         smtp_server="78.46.226.32",

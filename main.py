@@ -36,6 +36,7 @@ async def log_call(request: Request):
         # parsing
         report = VapiCallReport(**msg)
         update_record(report)
+
         remove_call_id(report.call.id)
 
         '''
