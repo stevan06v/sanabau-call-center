@@ -1,5 +1,5 @@
 import time
-
+import threading
 from libs.helpers import send_html_email, save_temp_html, render_notification_company, render_confirmation_client, \
     classify_call
 from libs.models import VapiCallReport
@@ -62,7 +62,7 @@ def make_outbound_chunk(batch):
 
 def get_uncalled_records():
     uncalled_records = []
-    records = get_records_from_worksheet("Kampagne-1")
+    records = get_records_from_worksheet("Template")
     for iterator in records:
         if iterator.get("called") == "NOT CALLED":
             uncalled_records.append(iterator)
@@ -94,7 +94,7 @@ def start_campaign():
 def update_record(vapi_call_report: VapiCallReport):
     header = sheet.row_values(1)
 
-    email_sent = False
+    email_sent = vapi_call_report.analysis.structuredData.status in ["INTERESSIERT", "SEHR INTERESSIERT"]
 
     record_col_index = {
         "call_id": header.index("call_id") + 1,
@@ -122,33 +122,10 @@ def update_record(vapi_call_report: VapiCallReport):
         print("⚠️ Keine Telefonnummer im Report gefunden – kein Update möglich.")
         return
 
-    if vapi_call_report.analysis.structuredData.status == "INTERESSIERT" or "SEHR INTERESSIERT":
-        success = send_html_email(
-            smtp_server=SMTP_SERVER,
-            smtp_port=SMTP_PORT,
-            sender_email=SMTP_EMAIL,
-            sender_password=SMTP_PASSWORD,
-            recipient_email=SMTP_EMAIL,  # SMTP_EMAIL
-            subject="Neuer Interessent gemeldet",
-            content=save_temp_html(render_notification_company(vapi_call_report))
-        )
-        email_sent = success
-        print(f"===Email sent to {SMTP_EMAIL}: {success}===")
-
-        try:
-            send_html_email(
-                smtp_server=SMTP_SERVER,
-                smtp_port=SMTP_PORT,
-                sender_email=SMTP_EMAIL,
-                sender_password=SMTP_PASSWORD,
-                recipient_email=str(vapi_call_report.analysis.structuredData.email) or "",
-                subject="Sana Bau GmbH — Bestätigung",
-                content=save_temp_html(render_confirmation_client(vapi_call_report))
-            )
-        except Exception as e:
-            print(f"Error sending confirmation email: {e}")
-
-    classification = classify_call(vapi_call_report.endedReason)
+    if vapi_call_report.analysis.successEvaluation:
+        classification = classify_call(vapi_call_report.endedReason)
+    else:
+        classification = "retry"
 
     records = get_records_from_worksheet("Template")
 
@@ -171,9 +148,49 @@ def update_record(vapi_call_report: VapiCallReport):
                 f'=HYPERLINK("{vapi_call_report.stereoRecordingUrl}";"Recording")'
             )
             sheet.update_cell(idx, record_col_index.get("classification"), classification)
-            print(f"Telefonnummer {vapi_call_report.customer.number} wurde auf '{"CALLED"}' aktualisiert (Zeile {idx})")
+            print(f"Telefonnummer {vapi_call_report.customer.number} wurde auf 'CALLED' aktualisiert (Zeile {idx})")
             break
     else:
         print("no match found!")
+
+    def _job():
+        status = getattr(
+            getattr(vapi_call_report.analysis, "structuredData", None),
+            "status",
+            None
+        )
+
+        if status in ["INTERESSIERT", "SEHR INTERESSIERT"]:
+            success = send_html_email(
+                smtp_server="78.46.226.32",
+                smtp_port=55587,
+                sender_email="info@homa-bau.com",
+                sender_password="8@B%eD>AGtd8LM:",
+                recipient_email="info@homa-bau.com",
+                subject="Neuer Interessent gemeldet",
+                content=save_temp_html(render_notification_company(vapi_call_report))
+            )
+            print(f"===Email sent to info@homa-bau.com: {success}===")
+
+            try:
+                recipient = getattr(
+                    getattr(vapi_call_report.analysis, "structuredData", None),
+                    "email",
+                    None
+                )
+                if recipient:
+                    send_html_email(
+                        smtp_server="78.46.226.32",
+                        smtp_port=55587,
+                        sender_email="info@homa-bau.com",
+                        sender_password="8@B%eD>AGtd8LM:",
+                        recipient_email=recipient,
+                        subject="Sana Bau GmbH — Bestätigung",
+                        content=save_temp_html(render_confirmation_client(vapi_call_report))
+                    )
+            except Exception as e:
+                print(f"Error sending confirmation email: {e}")
+
+    threading.Thread(target=_job, daemon=True).start()
 
 

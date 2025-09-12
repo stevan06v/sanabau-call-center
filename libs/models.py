@@ -22,6 +22,7 @@ class StructuredDate(BaseModel):
 
 class Analysis(BaseModel):
     structuredData: Optional[StructuredDate] = None
+    successEvaluation: Optional[bool] = None
 
 
 class VapiCallReport(BaseModel):

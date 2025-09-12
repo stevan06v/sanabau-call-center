@@ -24,6 +24,7 @@ async def log_call(request: Request):
 @app.post("/gather-caller-data")
 async def log_call(request: Request):
     data = await request.json()
+    print(data)
     signature = request.headers.get("X-Vapi-Signature")
     if signature != "your-secret-token":
         return {"error": "unauthorized"}, 401
