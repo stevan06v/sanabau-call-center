@@ -1,6 +1,7 @@
 import gspread
 from google.oauth2.service_account import Credentials
 import os
+from keys import WORKSHEET
 
 scopes = [
     "https://www.googleapis.com/auth/spreadsheets"
@@ -17,7 +18,7 @@ sheet_id = "1JXfj7bJ0kUceNgbTMgoSHg34_qb7Z8akd69IaB4lXvQ"
 
 workbook = client.open_by_key(sheet_id)
 
-sheet = workbook.worksheet("Kampagne-1")
+sheet = workbook.worksheet(WORKSHEET)
 
 
 def get_records_from_worksheet(worksheet_name) -> list:

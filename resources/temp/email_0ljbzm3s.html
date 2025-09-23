@@ -1,0 +1,80 @@
+<!-- responsive confirmation email - red theme -->
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Bestätigung - Sana Bau GmbH</title>
+  <style>
+    :root{
+      --red:#c9171e;
+      --dark:#2b2b2b;
+      --muted:#6b6b6b;
+      --bg:#ffffff;
+    }
+    body{margin:0;padding:0;background:var(--bg);font-family:Inter,Segoe UI,Arial,sans-serif;color:var(--dark)}
+    .wrap{max-width:680px;margin:24px auto;border-radius:12px;overflow:hidden;border:1px solid #eee;box-shadow:0 6px 30px rgba(0,0,0,0.06)}
+    .header{background:linear-gradient(90deg,var(--red),#ff3b3b);padding:22px 28px;color:white}
+    .brand{font-weight:700;font-size:20px;letter-spacing:0.2px}
+    .hero{padding:22px 28px;background:#fff}
+    h1{margin:0 0 6px;font-size:20px;color:var(--dark)}
+    p.lead{margin:0 0 14px;color:var(--muted);font-size:14px}
+    .card{border:1px solid #f3f3f3;border-radius:10px;padding:14px;background:#fafafa;margin:12px 0}
+    .row{display:flex;gap:12px;flex-wrap:wrap}
+    .col{flex:1 1 220px;min-width:160px}
+    .label{font-size:12px;color:var(--muted);margin-bottom:6px;display:block}
+    .value{font-size:14px;color:var(--dark);word-break:break-word}
+    .btn{display:inline-block;padding:10px 16px;border-radius:8px;background:var(--red);color:white;text-decoration:none;font-weight:600;margin-top:12px}
+    .muted{font-size:12px;color:var(--muted);margin-top:12px}
+    .footer{padding:16px 28px;background:#fcfcfc;font-size:12px;color:var(--muted);text-align:center}
+    @media (max-width:480px){ .row{flex-direction:column} .wrap{margin:12px} }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="header">
+      <div class="brand">Sana Bau GmbH — Bestätigung</div>
+    </div>
+
+    <div class="hero">
+      <h1>Vielen Dank – Ihre Anfrage wurde notiert</h1>
+      <p class="lead">Hallo <strong>Nicole Bogovic</strong>, vielen Dank für das Gespräch. Wir bestätigen hiermit, dass wir Ihre Anfrage erhalten haben und uns umgehend um Ihr Anliegen kümmern.</p>
+
+      <div class="card">
+        <div class="row">
+          <div class="col">
+            <span class="label">Kontakt</span>
+            <div class="value">Nicole Bogovic</div>
+          </div>
+          <div class="col">
+            <span class="label">E-Mail</span>
+            <div class="value">nicole.dogovitz@gmail.com</div>
+          </div>
+          <div class="col">
+            <span class="label">Telefon / Fax</span>
+            <div class="value"></div>
+          </div>
+        </div>
+
+        <div class="row" style="margin-top:12px">
+          <div class="col">
+            <span class="label">Branche</span>
+            <div class="value">Großhandel</div>
+          </div>
+          <div class="col">
+            <span class="label">Status</span>
+            <div class="value">INTERESSIERT</div>
+          </div>
+        </div>
+      </div>
+
+      <p class="muted">Ein Mitarbeiter der Sana Bau GmbH wird sich zeitnah mit weiteren Informationen oder einem Angebot bei Ihnen melden.</p>
+      <p class="muted">Falls Sie Fragen haben, antworten Sie einfach auf diese E-Mail oder rufen Sie uns an unter +49 170 1011101.</p>
+    </div>
+
+    <div class="footer">
+      Sana Bau GmbH · Maurer- und Sanierungsarbeiten · Sitz: Deutschland · <span style="color:var(--red)"><strong>info@sana-bau.com</strong></span>
+    </div>
+  </div>
+</body>
+</html>

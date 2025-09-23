@@ -6,8 +6,7 @@ from libs.models import VapiCallReport
 from libs.sheets import get_records_from_worksheet
 from vapi import Vapi
 from libs.sheets import sheet
-from keys import VAPI_API_TOKEN, PHONE_NUMBER_ID, ASSISTANT_ID, SHEETS_WEBHOOK_URL, SHEETS_GID, SMTP_SERVER, SMTP_PORT, \
-    SMTP_EMAIL, SMTP_PASSWORD
+from keys import VAPI_API_TOKEN, PHONE_NUMBER_ID, ASSISTANT_ID, SHEETS_WEBHOOK_URL, WORKSHEET
 import requests
 
 
@@ -65,7 +64,7 @@ def make_outbound_chunk(batch):
 
 def get_uncalled_records():
     uncalled_records = []
-    records = get_records_from_worksheet("Kampagne-1")
+    records = get_records_from_worksheet(WORKSHEET)
     for iterator in records:
         if iterator.get("called") == "NOT CALLED":
             uncalled_records.append(iterator)
@@ -129,7 +128,7 @@ def update_record(vapi_call_report: VapiCallReport):
 
     classification = "retry" if not getattr(vapi_call_report.analysis, "successEvaluation", False) else classify_call(vapi_call_report.endedReason)
 
-    records = get_records_from_worksheet("Kampagne-1")
+    records = get_records_from_worksheet(WORKSHEET)
 
     for idx, record in enumerate(records, start=2):
         if str(record.get("formatted_phone")) == customer_number:
